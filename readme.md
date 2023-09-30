@@ -1,5 +1,5 @@
 # vite-tex-loader
-Loads a `.tex` file and converts it to SVG.
+Converts a `.tex` file to PDF or SVG and provides the URI.
 
 # Getting started
 ## To install `vite-tex-loader`:
