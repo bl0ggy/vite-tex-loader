@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite';
-import { handleTexToPdf, handleTexToSvg, texViteLoaderOptions } from './internal';
+import { handleTexToPdf, handleTexToSvg, viteTexLoaderOptions } from './internal';
 
-export default function viteTexLoader(options: texViteLoaderOptions = {}) : Plugin {
+export default function viteTexLoader(options: viteTexLoaderOptions = {}) : Plugin {
     let config: ResolvedConfig;
 
     return {

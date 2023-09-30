@@ -13,7 +13,7 @@ type Paths = {
     uri: string
 }
 
-export type texViteLoaderOptions = {
+export type viteTexLoaderOptions = {
     /**
      * Path to GhostScript lib (not executable)
      */
@@ -65,7 +65,7 @@ function newVersion(fileOriginPath: string, fileDestPath: string) {
     return true;
 }
 
-export function handleTexToSvg(options: texViteLoaderOptions, config: ResolvedConfig, filePath: string) : string | undefined {
+export function handleTexToSvg(options: viteTexLoaderOptions, config: ResolvedConfig, filePath: string) : string | undefined {
     const paths = getPaths(config, filePath, 'svg');
     if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
@@ -80,7 +80,7 @@ export function handleTexToSvg(options: texViteLoaderOptions, config: ResolvedCo
     return `export const uri = "/${paths.uri}"; export const raw = \`${readContent(paths.fileDestPath)}\`; export default uri;`;
 }
 
-export function handleTexToPdf(options: texViteLoaderOptions, config: ResolvedConfig, filePath: string) : string | undefined {
+export function handleTexToPdf(options: viteTexLoaderOptions, config: ResolvedConfig, filePath: string) : string | undefined {
     const paths = getPaths(config, filePath, 'pdf');
     if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
