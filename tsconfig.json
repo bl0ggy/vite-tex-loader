@@ -1,23 +1,28 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ES2019",
+    "target": "ES2015",
     "lib": [
-      "ESNext"
+      "ESNext",
+      "ES5",
+      "ES6"
     ],
     "declaration": true,
     "sourceMap": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "strict": true,
+    "outDir": "./dist",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "importsNotUsedAsValues": "error",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "baseUrl": ".",
     "esModuleInterop": true,
     "skipLibCheck": true
-  }
+  },
+  "include": [
+    "src"
+  ]
 }
