@@ -1,8 +1,12 @@
 {
   "name": "vite-tex-loader",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.4",
+  "description": "Vite loader for .tex files",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bl0ggy/vite-tex-loader"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,10 +17,11 @@
     "dev": "tsc --watch",
     "build": "tsc",
     "lint": "eslint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "pub": "pnpm lint && pnpm build && pnpm publish"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Jessy Simeon",
+  "license": "MIT",
   "devDependencies": {
     "@bl0ggy/eslint-config": "github:bl0ggy/eslint-config-bl0ggy",
     "@types/node": "^20.8.0",

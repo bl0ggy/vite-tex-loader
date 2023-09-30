@@ -1,5 +1,5 @@
 import type { Plugin, ResolvedConfig } from 'vite';
-import { handleTexToPdf, handleTexToSvg, viteTexLoaderOptions } from './internal';
+import { handleTexToPdf, handleTexToSvg, viteTexLoaderOptions } from './internal.js';
 
 export default function viteTexLoader(options: viteTexLoaderOptions = {}) : Plugin {
     let config: ResolvedConfig;
