@@ -19,15 +19,13 @@ npm i -D vite-tex-loader
 - Create file `typings/tex.d.ts` containing:
     ```typescript
     declare module '*.tex?pdf-uri' {
-        const def: string
-        export default def
+        export const uri: string;
+        export default uri;
     }
     declare module '*.tex?svg' {
-        const def: {
-            uri: string
-            raw: string
-        }
-        export default def
+        export const uri: string;
+        export const raw: string;
+        export default uri;
     }
     ```
 - Add typings folder to your `tsconfig.json`:
@@ -40,10 +38,18 @@ npm i -D vite-tex-loader
     ```
 - Import the `*.tex` file and use it (example JSX/TSX):
     ```typescriptreact
-    import { uri } from `image.tex`;
+    import pdfUri from `pdf.tex?pdf-uri`;
+    import image1Uri from `image1.tex?svg`;
+    import { uri as image2Uri } from `image2.tex?svg`;
 
     export default function () {
-        return <img src={uri} />
+        return (
+            <>
+                <a href={pdfUri}>PDF file</a>
+                <img src={image1Uri} />
+                <img src={image2Uri} />
+            </>
+        );
     }
     ```
 
