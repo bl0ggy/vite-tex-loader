@@ -37,7 +37,7 @@ npm i -D vite-tex-loader
     }
     ```
 - Import the `*.tex` file and use it (example JSX/TSX):
-    ```typescriptreact
+    ```tsx
     import pdfUri from `pdf.tex?pdf-uri`;
     import image1Uri from `image1.tex?svg`;
     import { uri as image2Uri } from `image2.tex?svg`;
