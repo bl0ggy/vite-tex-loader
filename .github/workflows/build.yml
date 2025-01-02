@@ -1,16 +1,20 @@
-# This workflow deploys the package
+# This workflow builds the package
 
-name: Deploy
+name: Build
 
 on:
     # Allows you to run this workflow manually from the Actions tab.
     workflow_dispatch:
 
+    pull_request:
+        branches:
+            - main
+
     push:
-        branches: main
+        branches-ignore: main
 
 jobs:
-    deploy:
+    build:
         runs-on: ubuntu-latest
         steps:
             # Prepare the environment
@@ -24,8 +28,10 @@ jobs:
                   version: latest
             - run: pnpm i
 
-            # Deploy
-            - name: Deploy
-              run: pnpm pub
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
+            # Build
+            - name: Build
+              run: pnpm run build
+
+            # TODO - Not yet possible, requires latex/ghostscript/dvisvgm
+            # Test
+            # - run: pnpm run test
