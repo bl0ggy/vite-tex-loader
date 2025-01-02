@@ -1,5 +1,5 @@
 import type { Plugin, ResolvedConfig } from 'vite';
-import { load, viteTexLoaderOptions } from './internal.ts';
+import { load, viteTexLoaderOptions } from './internal.js';
 
 export default function viteTexLoader(
     options: viteTexLoaderOptions = {},
