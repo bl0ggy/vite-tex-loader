@@ -70,10 +70,31 @@ function newVersion(fileOriginPath: string, fileDestPath: string) {
 }
 
 export function handleTexToSvg(options: viteTexLoaderOptions, config: ResolvedConfig, filePath: string) : string | undefined {
+function findGhostScript(libgs?: string) {
+    if (libgs !== undefined) {
+        return libgs;
+    }
+
+    try {
+        let path = '/usr/local/share/ghostscript';
+        let children = fs.readdirSync(path);
+        path = `${path}/${children[children.length - 1]}/lib`;
+        children = fs.readdirSync(path);
+        const lib = children.find((f) =>
+            f.startsWith('libgs.so') || f.startsWith('libgs.dylib')
+        );
+        return `${path}/${lib}`;
+    } catch (e) {
+        console.info('Ghostscript could not be found', e);
+        return libgs;
+    }
+}
+
     const paths = getPaths(config, filePath, 'svg');
     if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
-            const libgs = options.LIBGS ? `export LIBGS=${options.LIBGS};` : '';
+            const libgsPath = findGhostScript(options.LIBGS);
+            const libgs = libgsPath ? `export LIBGS=${libgsPath};` : '';
             const cmd = `${libgs} mkdir -p "${paths.tmpDirPath}" && mkdir -p "${paths.dirDestPath}" && latex -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}" && dvisvgm -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`;
             childProcess.execSync(cmd);
         } catch (e) {
@@ -94,7 +115,8 @@ export function handleTexToPdf(options: viteTexLoaderOptions, config: ResolvedCo
     const paths = getPaths(config, filePath, 'pdf');
     if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
-            const libgs = options.LIBGS ? `export LIBGS=${options.LIBGS};` : '';
+            const libgsPath = findGhostScript(options.LIBGS);
+            const libgs = libgsPath ? `export LIBGS=${libgsPath};` : '';
             const cmd = `${libgs} mkdir -p "${paths.tmpDirPath}" && mkdir -p "${paths.dirDestPath}" && pdflatex -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}" && mv "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.pdf" "${paths.fileDestPath}"`;
             childProcess.execSync(cmd);
         } catch (e) {

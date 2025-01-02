@@ -67,6 +67,14 @@ For example if you have a file `src/assets/pdf.tex`, the result PDF file will be
 
 # Known issues
 - Only tested on Unix (Linux/macOS).
-- The host must have `latex` installed, `pdflatex` to generate PDF files and `dvisvgm` to generate SVG files, and they must all be in the PATH environment variable.
-    - For the warning related to "PostScript specials", you must provide LIBGS option e.g. `texLoader({LIBGS: "/usr/local/share/ghostscript/9.55.0/lib/libgs.dylib.9.55"})`
-- You have to create the type declaration for `*.tex` files yourself, it can't be imported from this package. If you know how to do that, please open an issue or PR!
+- The host must have `latex` installed, `pdflatex` to generate PDF files and
+  `dvisvgm` to generate SVG files, and they must all be in the PATH environment
+  variable.
+  - For the warning related to "PostScript specials", you must provide LIBGS
+    option in `vite.config.js` e.g.
+    `texLoader({LIBGS: "/usr/local/share/ghostscript/9.55.0/lib/libgs.dylib.9.55"})`.
+    `vite-tex-loader` will try to find the library on your system but it's not
+    guaranteed to succeed.
+- You have to create the type declaration for `*.tex` files yourself, it can't
+  be imported from this package. If you know how to do that, please open an
+  issue or PR!
