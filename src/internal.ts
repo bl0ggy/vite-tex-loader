@@ -4,6 +4,8 @@ import path from 'path';
 
 import type { ResolvedConfig } from 'vite';
 
+type ReducedResolvedConfig = Pick<ResolvedConfig, 'root' | 'publicDir'>;
+
 type Paths = {
     filenameWithoutTexExtension: string
     tmpDirPath: string
@@ -29,7 +31,7 @@ function readContent(filename: string) {
     .toString();
 }
 
-function getPaths(config: ResolvedConfig, fileOriginPath: string, fileExtension: string) : Paths {
+function getPaths(config: ReducedResolvedConfig, fileOriginPath: string, fileExtension: string) : Paths {
     const dirPath = path.dirname(fileOriginPath);
     const filename = path.basename(fileOriginPath);
     const relativeFolderPath = dirPath.replace(path.normalize(`${config.root}/`), '');
@@ -69,7 +71,6 @@ function newVersion(fileOriginPath: string, fileDestPath: string) {
     return true;
 }
 
-export function handleTexToSvg(options: viteTexLoaderOptions, config: ResolvedConfig, filePath: string) : string | undefined {
 function findGhostScript(libgs?: string) {
     if (libgs !== undefined) {
         return libgs;
@@ -90,13 +91,19 @@ function findGhostScript(libgs?: string) {
     }
 }
 
+function handleTexToSvg(options: viteTexLoaderOptions, config: ReducedResolvedConfig, filePath: string): string | undefined {
     const paths = getPaths(config, filePath, 'svg');
     if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
             const libgs = libgsPath ? `export LIBGS=${libgsPath};` : '';
-            const cmd = `${libgs} mkdir -p "${paths.tmpDirPath}" && mkdir -p "${paths.dirDestPath}" && latex -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}" && dvisvgm -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`;
-            childProcess.execSync(cmd);
+            const cmd = [
+                `mkdir -p "${paths.tmpDirPath}"`,
+                `mkdir -p "${paths.dirDestPath}"`,
+                `latex -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}"`,
+                `dvisvgm -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`,
+            ].join(' && ');
+            childProcess.execSync(`${libgs} ${cmd}`);
         } catch (e) {
             let stdout: string = '';
             if (hasStdout(e)) {
@@ -111,14 +118,19 @@ function findGhostScript(libgs?: string) {
     return `export const uri = "/${paths.uri}"; export const raw = \`${readContent(paths.fileDestPath)}\`; export default uri;`;
 }
 
-export function handleTexToPdf(options: viteTexLoaderOptions, config: ResolvedConfig, filePath: string) : string | undefined {
+function handleTexToPdf(options: viteTexLoaderOptions, config: ReducedResolvedConfig, filePath: string): string | undefined {
     const paths = getPaths(config, filePath, 'pdf');
     if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
             const libgs = libgsPath ? `export LIBGS=${libgsPath};` : '';
-            const cmd = `${libgs} mkdir -p "${paths.tmpDirPath}" && mkdir -p "${paths.dirDestPath}" && pdflatex -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}" && mv "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.pdf" "${paths.fileDestPath}"`;
-            childProcess.execSync(cmd);
+            const cmd = [
+                `mkdir -p "${paths.tmpDirPath}"`,
+                `mkdir -p "${paths.dirDestPath}"`,
+                `pdflatex -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}"`,
+                `mv "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.pdf" "${paths.fileDestPath}"`,
+            ].join(' && ');
+            childProcess.execSync(`${libgs} ${cmd}`);
         } catch (e) {
             let error: string = '';
             if (hasStdout(e)) {
@@ -131,4 +143,23 @@ export function handleTexToPdf(options: viteTexLoaderOptions, config: ResolvedCo
     }
 
     return `export default "/${paths.uri}";`;
+}
+
+export function load(
+    options: viteTexLoaderOptions,
+    config: ReducedResolvedConfig,
+    filePath: string,
+) {
+    if (filePath.match(/.+\.tex\?svg$/)) {
+        return handleTexToSvg(options, config, filePath.replace(/\?svg$/, ''));
+    }
+    if (filePath.match(/.+\.tex\?pdf-uri$/)) {
+        return handleTexToPdf(
+            options,
+            config,
+            filePath.replace(/\?pdf-uri$/, ''),
+        );
+    }
+    // We don't support the file/module requested
+    return undefined;
 }

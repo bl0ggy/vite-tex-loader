@@ -65,6 +65,12 @@ Latex needs to generate temporary files which will be located in `.vite-tex-load
 
 For example if you have a file `src/assets/pdf.tex`, the result PDF file will be `public/.auto-generated/src/assets/file.pdf`.
 
+# Tests and example
+
+By running the tests `pnpm run test` you should find the final files in `./tests/public/.auto-generated/`.
+
+The generated `./tests/.../examples/triangle.svg` file should be equivalent to the one in `./examples`: ![Triangle example](examples/triangle.svg?raw=true "Triangle example")
+
 # Known issues
 - Only tested on Unix (Linux/macOS).
 - The host must have `latex` installed, `pdflatex` to generate PDF files and
