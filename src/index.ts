@@ -1,7 +1,9 @@
 import type { Plugin, ResolvedConfig } from 'vite';
-import { handleTexToPdf, handleTexToSvg, viteTexLoaderOptions } from './internal.js';
+import { load, viteTexLoaderOptions } from './internal.ts';
 
-export default function viteTexLoader(options: viteTexLoaderOptions = {}) : Plugin {
+export default function viteTexLoader(
+    options: viteTexLoaderOptions = {},
+): Plugin {
     let config: ResolvedConfig;
 
     return {
@@ -9,15 +11,8 @@ export default function viteTexLoader(options: viteTexLoaderOptions = {}) : Plug
         configResolved(_config) {
             config = _config;
         },
-        async load(filePath: string) {
-            if(filePath.match(/.+\.tex\?svg$/)) {
-                return handleTexToSvg(options, config, filePath.replace(/\?svg$/, ''));
-            }
-            if(filePath.match(/.+\.tex\?pdf-uri$/)) {
-                return handleTexToPdf(options, config, filePath.replace(/\?pdf-uri$/, ''));
-            }
-            // We don't support the file/module requested
-            return undefined;
+        load(filePath: string) {
+            load(options, config, filePath);
         },
     };
 }
