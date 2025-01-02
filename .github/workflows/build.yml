@@ -28,9 +28,13 @@ jobs:
                   version: latest
             - run: pnpm i
 
+            # Lint
+            - name: Lint
+              run: pnpm lint
+
             # Build
             - name: Build
-              run: pnpm run build
+              run: pnpm build
 
             # TODO - Not yet possible, requires latex/ghostscript/dvisvgm
             # Test
