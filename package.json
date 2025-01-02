@@ -1,6 +1,6 @@
 {
     "name": "vite-tex-loader",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "Vite loader for .tex files",
     "type": "module",
     "repository": {
