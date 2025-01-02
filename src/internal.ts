@@ -7,43 +7,53 @@ import type { ResolvedConfig } from 'vite';
 type ReducedResolvedConfig = Pick<ResolvedConfig, 'root' | 'publicDir'>;
 
 type Paths = {
-    filenameWithoutTexExtension: string
-    tmpDirPath: string
-    fileOriginPath: string
-    dirDestPath: string
-    fileDestPath: string
-    uri: string
-}
+    filenameWithoutTexExtension: string;
+    tmpDirPath: string;
+    fileOriginPath: string;
+    dirDestPath: string;
+    fileDestPath: string;
+    uri: string;
+};
 
 export type viteTexLoaderOptions = {
     /**
      * Path to GhostScript lib (not executable)
      */
     LIBGS?: string;
-}
+};
 
 function hasStdout(e: unknown): e is { stdout: ArrayBuffer } {
     return e instanceof Object && Object.hasOwn(e, 'stdout');
 }
 
 function readContent(filename: string) {
-    return fs.readFileSync(filename)
-    .toString();
+    return fs.readFileSync(filename).toString();
 }
 
-function getPaths(config: ReducedResolvedConfig, fileOriginPath: string, fileExtension: string) : Paths {
+function getPaths(
+    config: ReducedResolvedConfig,
+    fileOriginPath: string,
+    fileExtension: string,
+): Paths {
     const dirPath = path.dirname(fileOriginPath);
     const filename = path.basename(fileOriginPath);
-    const relativeFolderPath = dirPath.replace(path.normalize(`${config.root}/`), '');
+    const relativeFolderPath = dirPath.replace(
+        path.normalize(`${config.root}/`),
+        '',
+    );
     const fileExtensionMatch = filename.match(/^(.*)\.tex$/);
-    if(!fileExtensionMatch) {
+    if (!fileExtensionMatch) {
         throw new Error('The file is not a .tex file.');
     }
     const filenameWithoutTexExtension = fileExtensionMatch[1] as string;
     const viteTexLoaderTmpDirPath = `${config.root}/.vite-tex-loader`;
-    const tmpDirPath = `${viteTexLoaderTmpDirPath}/${dirPath.replace(config.root, '')}`;
-    const dirDestPath = `${config.publicDir}/.auto-generated/${relativeFolderPath}`;
-    const fileDestPath = `${dirDestPath}/${filenameWithoutTexExtension}.${fileExtension}`;
+    const tmpDirPath = `${viteTexLoaderTmpDirPath}/${
+        dirPath.replace(config.root, '')
+    }`;
+    const dirDestPath =
+        `${config.publicDir}/.auto-generated/${relativeFolderPath}`;
+    const fileDestPath =
+        `${dirDestPath}/${filenameWithoutTexExtension}.${fileExtension}`;
     const uri = fileDestPath.replace(`${config.root}/public/`, '');
     return {
         filenameWithoutTexExtension,
@@ -61,11 +71,11 @@ function newVersion(fileOriginPath: string, fileDestPath: string) {
         const statPdf = fs.statSync(fileDestPath);
         const modifiedDateOrigin = statTex.mtime;
         const modifiedDateDest = statPdf.mtime;
-        if(modifiedDateOrigin <= modifiedDateDest) {
+        if (modifiedDateOrigin <= modifiedDateDest) {
             // No need to regenerate the file
             return false;
         }
-    } catch (exception) {
+    } catch (_) {
         // statSync didn't work on the file => it does not exist, we consider it is outdated
     }
     return true;
@@ -91,9 +101,13 @@ function findGhostScript(libgs?: string) {
     }
 }
 
-function handleTexToSvg(options: viteTexLoaderOptions, config: ReducedResolvedConfig, filePath: string): string | undefined {
+function handleTexToSvg(
+    options: viteTexLoaderOptions,
+    config: ReducedResolvedConfig,
+    filePath: string,
+): string | undefined {
     const paths = getPaths(config, filePath, 'svg');
-    if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
+    if (newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
             const libgs = libgsPath ? `export LIBGS=${libgsPath};` : '';
@@ -115,12 +129,18 @@ function handleTexToSvg(options: viteTexLoaderOptions, config: ReducedResolvedCo
         }
     }
 
-    return `export const uri = "/${paths.uri}"; export const raw = \`${readContent(paths.fileDestPath)}\`; export default uri;`;
+    return `export const uri = "/${paths.uri}"; export const raw = \`${
+        readContent(paths.fileDestPath)
+    }\`; export default uri;`;
 }
 
-function handleTexToPdf(options: viteTexLoaderOptions, config: ReducedResolvedConfig, filePath: string): string | undefined {
+function handleTexToPdf(
+    options: viteTexLoaderOptions,
+    config: ReducedResolvedConfig,
+    filePath: string,
+): string | undefined {
     const paths = getPaths(config, filePath, 'pdf');
-    if(newVersion(paths.fileOriginPath, paths.fileDestPath)) {
+    if (newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
             const libgs = libgsPath ? `export LIBGS=${libgsPath};` : '';

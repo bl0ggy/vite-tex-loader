@@ -1,37 +1,37 @@
 {
-  "name": "vite-tex-loader",
-  "version": "0.0.6",
-  "description": "Vite loader for .tex files",
-  "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bl0ggy/vite-tex-loader"
-  },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc",
-    "lint": "eslint",
-    "type-check": "tsc --noEmit",
-    "test": "jest",
-    "pub": "pnpm lint && pnpm build && pnpm publish"
-  },
-  "author": "Jessy Simeon",
-  "license": "MIT",
-  "devDependencies": {
-    "@bl0ggy/eslint-config": "github:bl0ggy/eslint-config-bl0ggy",
-    "@jest/globals": "^29.7.0",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^20.8.0",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "jest": "^29.5.0",
-    "ts-jest": "^29.2.5",
-    "typescript": "^5.2.2",
-    "vite": "^4.4.9"
-  }
+    "name": "vite-tex-loader",
+    "version": "0.0.6",
+    "description": "Vite loader for .tex files",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bl0ggy/vite-tex-loader"
+    },
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "dev": "tsc --watch",
+        "build": "tsc",
+        "lint": "eslint",
+        "type-check": "tsc --noEmit",
+        "test": "jest",
+        "pub": "pnpm lint && pnpm build && pnpm publish"
+    },
+    "author": "Jessy Simeon",
+    "license": "MIT",
+    "devDependencies": {
+        "@bl0ggy/eslint-config": "github:bl0ggy/eslint-config-bl0ggy",
+        "@jest/globals": "^29.7.0",
+        "@types/jest": "^29.5.14",
+        "@types/node": "^20.8.0",
+        "@typescript-eslint/eslint-plugin": "^6.7.3",
+        "jest": "^29.5.0",
+        "ts-jest": "^29.2.5",
+        "typescript": "^5.2.2",
+        "vite": "^4.4.9"
+    }
 }
