@@ -21,8 +21,6 @@
         "baseUrl": ".",
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "allowImportingTsExtensions": true,
-        "emitDeclarationOnly": true
     },
     "include": [
         "src"
