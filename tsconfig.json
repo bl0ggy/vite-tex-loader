@@ -17,10 +17,12 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true
   },
   "include": [
     "src"
