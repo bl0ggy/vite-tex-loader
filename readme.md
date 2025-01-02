@@ -1,6 +1,6 @@
 # vite-tex-loader
 
-Converts a `.tex` file to PDF or SVG and provides the URI.
+Converts a `.tex` file to PDF or SVG and provides the URI or raw SVG string.
 
 # Motivations
 
@@ -9,8 +9,11 @@ don't like to save binary files on my git repos!
 
 I like to use .svg files, so that I can keep track of the changes.
 
-Tikz is the best tool to create diagrams programmatically, see
-https://github.com/pgf-tikz/pgf https://tikz.dev/ and https://tikz.net/.
+Tikz is the best tool to create diagrams programmatically, see:
+
+- https://github.com/pgf-tikz/pgf
+- https://tikz.dev/
+- https://tikz.net/
 
 # Getting started
 
@@ -18,7 +21,7 @@ https://github.com/pgf-tikz/pgf https://tikz.dev/ and https://tikz.net/.
 
 ```bash
 # This package is not needed in production environment
-npm i -D vite-tex-loader
+pnpm i -D vite-tex-loader
 ```
 
 ## To use `vite-tex-loader`:
@@ -82,6 +85,7 @@ By running the tests `pnpm run test` you should find the final files in
 
 The generated `./tests/.../examples/triangle.svg` file should be equivalent to
 the one in `./examples`:
+
 ![Triangle example](examples/triangle.svg?raw=true "Triangle example")
 
 # Known issues
@@ -93,6 +97,7 @@ the one in `./examples`:
   - For the warning related to "PostScript specials", you must provide LIBGS
     option in `vite.config.js` e.g.
     `texLoader({LIBGS: "/usr/local/share/ghostscript/9.55.0/lib/libgs.dylib.9.55"})`.
+
     `vite-tex-loader` will try to find the library on your system but it's not
     guaranteed to succeed.
 - You have to create the type declaration for `*.tex` files yourself, it can't
