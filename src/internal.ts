@@ -20,6 +20,10 @@ export type viteTexLoaderOptions = {
     LIBGS?: string;
 }
 
+function hasStdout(e: unknown): e is { stdout: ArrayBuffer } {
+    return e instanceof Object && Object.hasOwn(e, 'stdout');
+}
+
 function readContent(filename: string) {
     return fs.readFileSync(filename)
     .toString();
@@ -73,7 +77,13 @@ export function handleTexToSvg(options: viteTexLoaderOptions, config: ResolvedCo
             const cmd = `${libgs} mkdir -p "${paths.tmpDirPath}" && mkdir -p "${paths.dirDestPath}" && latex -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}" && dvisvgm -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`;
             childProcess.execSync(cmd);
         } catch (e) {
-            throw new Error(`Couldn't convert "${paths.fileOriginPath}" to SVG`);
+            let stdout: string = '';
+            if (hasStdout(e)) {
+                stdout = e.stdout.toString();
+            }
+            throw new Error(
+                `Couldn't convert "${paths.fileOriginPath}" to SVG: ${stdout}`,
+            );
         }
     }
 
@@ -88,7 +98,13 @@ export function handleTexToPdf(options: viteTexLoaderOptions, config: ResolvedCo
             const cmd = `${libgs} mkdir -p "${paths.tmpDirPath}" && mkdir -p "${paths.dirDestPath}" && pdflatex -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}" && mv "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.pdf" "${paths.fileDestPath}"`;
             childProcess.execSync(cmd);
         } catch (e) {
-            throw new Error(`Couldn't convert "${paths.fileOriginPath}" to PDF`);
+            let error: string = '';
+            if (hasStdout(e)) {
+                error = e.stdout.toString();
+            }
+            throw new Error(
+                `Couldn't convert "${paths.fileOriginPath}" to PDF: ${error}`,
+            );
         }
     }
 
