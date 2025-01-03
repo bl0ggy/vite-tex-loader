@@ -20,7 +20,7 @@
         "moduleResolution": "bundler",
         "baseUrl": ".",
         "esModuleInterop": true,
-        "skipLibCheck": true,
+        "skipLibCheck": true
     },
     "include": [
         "src"
