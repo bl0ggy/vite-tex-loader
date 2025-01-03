@@ -12,7 +12,7 @@ export default function viteTexLoader(
             config = _config;
         },
         load(filePath: string) {
-            load(options, config, filePath);
+            return load(options, config, filePath);
         },
     };
 }
