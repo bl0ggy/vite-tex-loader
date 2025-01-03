@@ -1,5 +1,5 @@
 import { expect, test } from '@jest/globals';
-import fs from 'fs';
+import fs from 'node:fs';
 import { load } from '../src/internal.ts';
 
 test('Converts triangle to PDF', () => {
