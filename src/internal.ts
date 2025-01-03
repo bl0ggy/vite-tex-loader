@@ -21,6 +21,9 @@ export type viteTexLoaderOptions = {
      * Path to GhostScript lib (not executable)
      */
     LIBGS?: string;
+    svgLatexCliOptions?: string;
+    svgDvisvgmCliOptions?: string;
+    pdfPdflatexCliOptions?: string;
 };
 
 function hasStdout(e: unknown): e is { stdout: ArrayBuffer } {
@@ -112,6 +115,8 @@ function handleTexToSvg(
     filePath: string,
 ): string | undefined {
     const paths = getPaths(config, filePath, 'svg');
+    const latexCliOptions = options.svgLatexCliOptions ?? '';
+    const dvisvgmCliOptions = options.svgDvisvgmCliOptions ?? '';
     if (newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
@@ -119,8 +124,8 @@ function handleTexToSvg(
             const cmd = [
                 `mkdir -p "${paths.tmpDirPath}"`,
                 `mkdir -p "${paths.dirDestPath}"`,
-                `latex -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}"`,
-                `dvisvgm -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`,
+                `latex ${latexCliOptions} -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}"`,
+                `dvisvgm ${dvisvgmCliOptions} -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`,
             ].join(' && ');
             childProcess.execSync(`${libgs} ${cmd}`);
         } catch (e) {
@@ -145,6 +150,7 @@ function handleTexToPdf(
     filePath: string,
 ): string | undefined {
     const paths = getPaths(config, filePath, 'pdf');
+    const pdflatexCliOptions = options.pdfPdflatexCliOptions ?? '';
     if (newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
@@ -152,7 +158,7 @@ function handleTexToPdf(
             const cmd = [
                 `mkdir -p "${paths.tmpDirPath}"`,
                 `mkdir -p "${paths.dirDestPath}"`,
-                `pdflatex -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}"`,
+                `pdflatex ${pdflatexCliOptions} -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}"`,
                 `mv "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.pdf" "${paths.fileDestPath}"`,
             ].join(' && ');
             childProcess.execSync(`${libgs} ${cmd}`);
