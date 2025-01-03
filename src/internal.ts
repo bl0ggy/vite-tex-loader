@@ -23,7 +23,8 @@ export type viteTexLoaderOptions = {
 };
 
 function hasStdout(e: unknown): e is { stdout: ArrayBuffer } {
-    return e instanceof Object && Object.hasOwn(e, 'stdout');
+    return (e instanceof Object || typeof e === 'object') && e !== null &&
+        Object.hasOwn(e, 'stdout');
 }
 
 function readContent(filename: string) {
