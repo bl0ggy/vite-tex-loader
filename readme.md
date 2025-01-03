@@ -95,10 +95,12 @@ the one in `./examples`:
   `dvisvgm` to generate SVG files, and they must all be in the PATH environment
   variable.
   - For the warning related to "PostScript specials", you must provide LIBGS
-    option in `vite.config.js` e.g.
+    either as an environment variable or as an option in `vite.config.js` e.g.
     `texLoader({LIBGS: "/usr/local/share/ghostscript/9.55.0/lib/libgs.dylib.9.55"})`.
+    The loader option has priority over the environment variable.
 
-    `vite-tex-loader` will try to find the library on your system but it's not
+    If both the environment variable and the options are not set,
+    `vite-tex-loader` will try to find the library on your system, but it's not
     guaranteed to succeed.
 - You have to create the type declaration for `*.tex` files yourself, it can't
   be imported from this package. If you know how to do that, please open an

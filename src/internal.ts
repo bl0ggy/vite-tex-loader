@@ -171,6 +171,11 @@ export function load(
     config: ReducedResolvedConfig,
     filePath: string,
 ) {
+    // Give priority to the options, otherwise use the env variable
+    if (options.LIBGS === undefined && process.env.LIBGS) {
+        options.LIBGS = process.env.LIBGS;
+    }
+
     if (filePath.match(/.+\.tex\?svg$/)) {
         return handleTexToSvg(options, config, filePath.replace(/\?svg$/, ''));
     }
