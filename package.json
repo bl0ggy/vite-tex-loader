@@ -18,7 +18,7 @@
         "build": "tsc",
         "lint": "eslint",
         "type-check": "tsc --noEmit",
-        "test": "jest",
+        "test": "rm -rf ./tests/public ./tests/.vite-tex-loader && jest",
         "pub": "pnpm lint && pnpm build && pnpm publish"
     },
     "author": "Jessy Simeon",
