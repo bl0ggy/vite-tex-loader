@@ -21,10 +21,51 @@ export type viteTexLoaderOptions = {
      * Path to GhostScript lib (not executable)
      */
     LIBGS?: string;
+    /**
+     * CLI options to pass to the `latex` executable
+     */
     svgLatexCliOptions?: string;
+    /**
+     * CLI options to pass to the `dvisvgm` executable
+     */
     svgDvisvgmCliOptions?: string;
+    /**
+     * CLI options to pass to the `pdflatex` executable
+     */
     pdfPdflatexCliOptions?: string;
 };
+type UriOptions = {
+    dvisvgmPrefix?: string;
+};
+type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+type viteTexLoaderOptionsMandatory =
+    & WithRequired<
+        viteTexLoaderOptions,
+        keyof viteTexLoaderOptions
+    >
+    & UriOptions;
+function convertOptionsToMandatory(
+    options: viteTexLoaderOptions,
+): viteTexLoaderOptionsMandatory {
+    return {
+        LIBGS: options.LIBGS ?? '',
+        svgLatexCliOptions: options.svgLatexCliOptions ?? '',
+        svgDvisvgmCliOptions: options.svgDvisvgmCliOptions ?? '',
+        pdfPdflatexCliOptions: options.pdfPdflatexCliOptions ?? '',
+    };
+}
+function readUriParams(params: string): Map<string, string> {
+    const map = new Map<string, string>();
+    const splittedParams = params.split('&')
+        .filter((s) => s.match(/.+=.+/) !== null)
+        .map((s) => s.split('='));
+    for (const [key, value] of splittedParams) {
+        if (key && value) {
+            map.set(key, value);
+        }
+    }
+    return map;
+}
 
 function hasStdout(e: unknown): e is { stdout: ArrayBuffer } {
     return (e instanceof Object || typeof e === 'object') && e !== null &&
@@ -89,8 +130,8 @@ function newVersion(fileOriginPath: string, fileDestPath: string) {
     return true;
 }
 
-function findGhostScript(libgs?: string) {
-    if (libgs !== undefined) {
+function findGhostScript(libgs: string) {
+    if (libgs.length !== 0) {
         return libgs;
     }
 
@@ -110,13 +151,11 @@ function findGhostScript(libgs?: string) {
 }
 
 function handleTexToSvg(
-    options: viteTexLoaderOptions,
+    options: viteTexLoaderOptionsMandatory,
     config: ReducedResolvedConfig,
     filePath: string,
 ): string | undefined {
     const paths = getPaths(config, filePath, 'svg');
-    const latexCliOptions = options.svgLatexCliOptions ?? '';
-    const dvisvgmCliOptions = options.svgDvisvgmCliOptions ?? '';
     if (newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
@@ -124,10 +163,32 @@ function handleTexToSvg(
             const cmd = [
                 `mkdir -p "${paths.tmpDirPath}"`,
                 `mkdir -p "${paths.dirDestPath}"`,
-                `latex ${latexCliOptions} -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}"`,
-                `dvisvgm ${dvisvgmCliOptions} -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`,
+                `latex ${options.svgLatexCliOptions} -output-directory="${paths.tmpDirPath}" -output-format=dvi "${paths.fileOriginPath}"`,
+                `dvisvgm ${options.svgDvisvgmCliOptions} -o "${paths.fileDestPath}" "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.dvi"`,
             ].join(' && ');
             childProcess.execSync(`${libgs} ${cmd}`);
+
+            // Add a prefix to auto generated tag ids
+            // This prevents conflicts between svgs when used on a same web page
+            if (options.dvisvgmPrefix) {
+                let fileContent = fs.readFileSync(paths.fileDestPath)
+                    .toString();
+                const matches = [...(fileContent.matchAll(/id='([^']+)'/g))]
+                    .map(
+                        (m) => m[1],
+                    );
+                for (const m of matches) {
+                    fileContent = fileContent.replaceAll(
+                        `id='${m}'`,
+                        `id='${options.dvisvgmPrefix}${m}'`,
+                    );
+                    fileContent = fileContent.replaceAll(
+                        `xlink:href='#${m}'`,
+                        `xlink:href='#${options.dvisvgmPrefix}${m}'`,
+                    );
+                }
+                fs.writeFileSync(paths.fileDestPath, fileContent);
+            }
         } catch (e) {
             let stdout: string = '';
             if (hasStdout(e)) {
@@ -145,12 +206,11 @@ function handleTexToSvg(
 }
 
 function handleTexToPdf(
-    options: viteTexLoaderOptions,
+    options: viteTexLoaderOptionsMandatory,
     config: ReducedResolvedConfig,
     filePath: string,
 ): string | undefined {
     const paths = getPaths(config, filePath, 'pdf');
-    const pdflatexCliOptions = options.pdfPdflatexCliOptions ?? '';
     if (newVersion(paths.fileOriginPath, paths.fileDestPath)) {
         try {
             const libgsPath = findGhostScript(options.LIBGS);
@@ -158,7 +218,7 @@ function handleTexToPdf(
             const cmd = [
                 `mkdir -p "${paths.tmpDirPath}"`,
                 `mkdir -p "${paths.dirDestPath}"`,
-                `pdflatex ${pdflatexCliOptions} -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}"`,
+                `pdflatex ${options.pdfPdflatexCliOptions} -output-directory="${paths.tmpDirPath}" "${paths.fileOriginPath}"`,
                 `mv "${paths.tmpDirPath}/${paths.filenameWithoutTexExtension}.pdf" "${paths.fileDestPath}"`,
             ].join(' && ');
             childProcess.execSync(`${libgs} ${cmd}`);
@@ -185,15 +245,28 @@ export function load(
     if (options.LIBGS === undefined && process.env.LIBGS) {
         options.LIBGS = process.env.LIBGS;
     }
+    const mandatoryOptions = convertOptionsToMandatory(options);
 
-    if (filePath.match(/.+\.tex\?svg$/)) {
-        return handleTexToSvg(options, config, filePath.replace(/\?svg$/, ''));
-    }
-    if (filePath.match(/.+\.tex\?pdf-uri$/)) {
-        return handleTexToPdf(
-            options,
+    let match = filePath.match(/(.+\.tex)\?svg(&.*)?$/);
+    if (match && match[1]) {
+        const map: Map<string, string> | null = match[2]
+            ? readUriParams(match[2])
+            : null;
+        if (map) {
+            mandatoryOptions.dvisvgmPrefix = map.get('idPrefix');
+        }
+        return handleTexToSvg(
+            mandatoryOptions,
             config,
-            filePath.replace(/\?pdf-uri$/, ''),
+            match[1],
+        );
+    }
+    match = filePath.match(/(.+\.tex)\?pdf-uri(&.*)?$/);
+    if (match && match[1]) {
+        return handleTexToPdf(
+            mandatoryOptions,
+            config,
+            match[1],
         );
     }
     // We don't support the file/module requested
