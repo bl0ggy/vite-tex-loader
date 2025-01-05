@@ -56,9 +56,10 @@ pnpm i -D vite-tex-loader
   ```
 - Import the `*.tex` file and use it (example JSX/TSX):
   ```tsx
-  import pdfUri from 'pdf.tex?pdf-uri';
-  import image1Uri from 'image1.tex?svg';
-  import { uri as image2Uri } from 'image2.tex?svg';
+  import pdfUri from 'pdf.tex?pdf-uri'; // Give the URI of the PDF in the public folder
+  import image1Uri from 'image1.tex?svg'; // Give the URI of the SVG in the public folder
+  import { uri as image2Uri } from 'image2.tex?svg'; // Give the URI of the SVG in the public folder
+  import { raw as image2Raw } from 'image2.tex?svg'; // Give the raw content of the SVG file
 
   export default function () {
       return (
@@ -66,6 +67,8 @@ pnpm i -D vite-tex-loader
               <a href={pdfUri}>PDF file</a>
               <img src={image1Uri} />
               <img src={image2Uri} />
+              {/* This loader doesn't create a React Node object, only raw text is provided */}
+              <div dangerouslySetInnerHTML={{ __html: image2Raw }} />
           </>
       );
   }
