@@ -56,9 +56,9 @@ pnpm i -D vite-tex-loader
   ```
 - Import the `*.tex` file and use it (example JSX/TSX):
   ```tsx
-  import pdfUri from `pdf.tex?pdf-uri`;
-  import image1Uri from `image1.tex?svg`;
-  import { uri as image2Uri } from `image2.tex?svg`;
+  import pdfUri from 'pdf.tex?pdf-uri';
+  import image1Uri from 'image1.tex?svg';
+  import { uri as image2Uri } from 'image2.tex?svg';
 
   export default function () {
       return (
@@ -77,6 +77,30 @@ Latex needs to generate temporary files which will be located in
 
 For example if you have a file `src/assets/pdf.tex`, the result PDF file will be
 `public/.auto-generated/src/assets/file.pdf`.
+
+There are several options on the loader that you can add to vite.config.js:
+
+- `LIBGS`: This can be set either as an option or as an environment variable. It
+  must contain the path to ghostscript library `libgs.so*` or `libgs.dylib*`
+- `svgLatexCliOptions`: Contains all CLI options you want to pass to `latex`
+  when generating the SVG file
+- `svgDvisvgmCliOptions`: Contains all CLI options you want to pass to `dvisvgm`
+  when generating the SVG file
+- `pdfPdfLatexCliOptions`: Contains all CLI options you want to pass to
+  `pdflatex` when generating the PDF file
+
+There is also a URI parameter that you can provide at each SVG file you want to
+generate:
+
+- `idPrefix`: The prefix to add before all auto generated ids in the SVG. This
+  is useful to avoid conflicts between SVGs in a single web page.
+
+This URI parameter is just a & separated key/value pair, identical to what web
+pages use. Here is an example on how to use this URI parameter:
+
+```tsx
+import svg from 'image2.tex?svg&idPrefix=test_';
+```
 
 # Tests and example
 
