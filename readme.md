@@ -121,12 +121,13 @@ the one in `./examples`:
 - The host must have `latex` installed, `pdflatex` to generate PDF files and
   `dvisvgm` to generate SVG files, and they must all be in the PATH environment
   variable.
-  - For the warning related to "PostScript specials", you must provide LIBGS
-    either as an environment variable or as an option in `vite.config.js` e.g.
+  - If you get the warning "processing of PostScript specials is disabled
+    (Ghostscript not found)", you must provide LIBGS either as an environment
+    variable or as an option in `vite.config.js` e.g.
     `texLoader({LIBGS: "/usr/local/share/ghostscript/9.55.0/lib/libgs.dylib.9.55"})`.
     The loader option has priority over the environment variable.
 
-    If both the environment variable and the options are not set,
+    If both the environment variable and the options are **not** set,
     `vite-tex-loader` will try to find the library on your system, but it's not
     guaranteed to succeed.
 - You have to create the type declaration for `*.tex` files yourself, it can't
