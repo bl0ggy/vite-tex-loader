@@ -47,4 +47,4 @@ jobs:
 
             # Test
             - name: Test
-              run: export LIBGS="/usr/lib/x86_64-linux-gnu/libgs.so.9.55" && pnpm run test
+              run: export LIBGS="/usr/lib/x86_64-linux-gnu/libgs.so.10" && pnpm run test
