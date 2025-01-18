@@ -56,9 +56,10 @@ pnpm i -D vite-tex-loader
   ```
 - Import the `*.tex` file and use it (example JSX/TSX):
   ```tsx
-  import pdfUri from `pdf.tex?pdf-uri`;
-  import image1Uri from `image1.tex?svg`;
-  import { uri as image2Uri } from `image2.tex?svg`;
+  import pdfUri from 'pdf.tex?pdf-uri'; // Give the URI of the PDF in the public folder
+  import image1Uri from 'image1.tex?svg'; // Give the URI of the SVG in the public folder
+  import { uri as image2Uri } from 'image2.tex?svg'; // Give the URI of the SVG in the public folder
+  import { raw as image2Raw } from 'image2.tex?svg'; // Give the raw content of the SVG file
 
   export default function () {
       return (
@@ -66,6 +67,8 @@ pnpm i -D vite-tex-loader
               <a href={pdfUri}>PDF file</a>
               <img src={image1Uri} />
               <img src={image2Uri} />
+              {/* This loader doesn't create a React Node object, only raw text is provided */}
+              <div dangerouslySetInnerHTML={{ __html: image2Raw }} />
           </>
       );
   }
@@ -77,6 +80,30 @@ Latex needs to generate temporary files which will be located in
 
 For example if you have a file `src/assets/pdf.tex`, the result PDF file will be
 `public/.auto-generated/src/assets/file.pdf`.
+
+There are several options on the loader that you can add to vite.config.js:
+
+- `LIBGS`: This can be set either as an option or as an environment variable. It
+  must contain the path to ghostscript library `libgs.so*` or `libgs.dylib*`
+- `svgLatexCliOptions`: Contains all CLI options you want to pass to `latex`
+  when generating the SVG file
+- `svgDvisvgmCliOptions`: Contains all CLI options you want to pass to `dvisvgm`
+  when generating the SVG file
+- `pdfPdfLatexCliOptions`: Contains all CLI options you want to pass to
+  `pdflatex` when generating the PDF file
+
+There is also a URI parameter that you can provide at each SVG file you want to
+generate:
+
+- `idPrefix`: The prefix to add before all auto generated ids in the SVG. This
+  is useful to avoid conflicts between SVGs in a single web page.
+
+This URI parameter is just a & separated key/value pair, identical to what web
+pages use. Here is an example on how to use this URI parameter:
+
+```tsx
+import svg from 'image2.tex?svg&idPrefix=test_';
+```
 
 # Tests and example
 
@@ -94,12 +121,13 @@ the one in `./examples`:
 - The host must have `latex` installed, `pdflatex` to generate PDF files and
   `dvisvgm` to generate SVG files, and they must all be in the PATH environment
   variable.
-  - For the warning related to "PostScript specials", you must provide LIBGS
-    either as an environment variable or as an option in `vite.config.js` e.g.
+  - If you get the warning "processing of PostScript specials is disabled
+    (Ghostscript not found)", you must provide LIBGS either as an environment
+    variable or as an option in `vite.config.js` e.g.
     `texLoader({LIBGS: "/usr/local/share/ghostscript/9.55.0/lib/libgs.dylib.9.55"})`.
     The loader option has priority over the environment variable.
 
-    If both the environment variable and the options are not set,
+    If both the environment variable and the options are **not** set,
     `vite-tex-loader` will try to find the library on your system, but it's not
     guaranteed to succeed.
 - You have to create the type declaration for `*.tex` files yourself, it can't
